@@ -1,33 +1,32 @@
-# 指定 AMD64 作为目标架构
-FROM --platform=linux/amd64 node:22.14.0-slim -alpine AS builder
+# 1. 使用 Node.js 作为基础镜像
+FROM node:18-alpine AS builder
 
-# 设置工作目录
+# 2. 设置工作目录
 WORKDIR /app
 
-# 复制 package.json 和 package-lock.json
-COPY package*.json ./
+# 3. 复制 package.json 和 package-lock.json
+COPY package.json package-lock.json ./
 
-# 安装依赖
-RUN npm install
+# 4. 安装生产环境依赖（使用 --force 忽略潜在依赖问题）
+RUN npm install --production --force
 
-# 复制源代码
+# 5. 复制项目文件
 COPY . .
 
-# 构建 Next.js 应用
+# 6. 构建 Next.js 应用
 RUN npm run build
 
-# 生产环境使用轻量级镜像
-FROM --platform=linux/amd64 node:18-alpine AS runner
+# 7. 生产环境运行容器
+FROM node:18-alpine AS runner
 
-# 设置工作目录
+# 8. 设置工作目录
 WORKDIR /app
 
-# 复制构建产物
-COPY --from=builder /app ./
+# 9. 复制构建后的应用
+COPY --from=builder /app/.next .next
+COPY --from=builder /app/node_modules node_modules
+COPY --from=builder /app/package.json package.json
+COPY --from=builder /app/public public
 
-# 设置环境变量
-ENV NODE_ENV=production
-ENV PORT=3000
-
-# 运行应用
+# 10. 运行 Next.js 应用
 CMD ["npm", "run", "start"]
