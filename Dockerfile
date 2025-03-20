@@ -1,5 +1,5 @@
 # 指定 AMD64 作为目标架构
-FROM --platform=linux/amd64 node:18-alpine AS builder
+FROM --platform=linux/amd64 node:22.14.0-slim -alpine AS builder
 
 # 设置工作目录
 WORKDIR /app
