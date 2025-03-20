@@ -1,37 +1,38 @@
 # 使用 AMD64 的 Node.js 22.14 基础镜像
 FROM amd64/node:22.14 AS builder
 
+# 设置工作目录
 WORKDIR /app
 
-# 安装构建工具
-RUN apt-get update && apt-get install -y python3 make g++
-
-# 强制 npm 使用 x64 架构
-RUN npm config set arch x64
-
-# 复制依赖文件
+# 复制 package.json 和 package-lock.json
 COPY package.json package-lock.json ./
 
-# 安装生产依赖（使用 --legacy-peer-deps 防止依赖冲突）
-RUN npm install --production --force --legacy-peer-deps
+# 安装依赖
+RUN npm install --frozen-lockfile
 
-# 如果有原生模块，尝试重新编译
-RUN npm rebuild
-
-# 复制源码并构建 Next.js 应用
+# 复制所有源代码
 COPY . .
+
+# 构建 Next.js 应用
 RUN npm run build
 
-# 生产环境镜像
-FROM amd64/node:22.14 AS runner
+# 生产环境镜像，使用更轻量级的 Node.js 22-alpine 运行时
+FROM node:22.14.0-alpine
 
+# 设置工作目录
 WORKDIR /app
 
 # 复制构建产物
-COPY --from=builder /app/.next .next
-COPY --from=builder /app/node_modules node_modules
-COPY --from=builder /app/package.json package.json
-COPY --from=builder /app/public public
+COPY --from=builder /app ./
 
+# 设置环境变量，允许从外部注入后端地址
+ENV NEXT_PUBLIC_BACKEND_URL=http://backend-service:8080
+
+# 安装仅生产环境依赖
+RUN npm install --production
+
+# 开放端口
 EXPOSE 3000
+
+# 启动 Next.js 应用
 CMD ["npm", "run", "start"]
