@@ -1,20 +1,29 @@
-# 使用一个稳定的基础镜像
-FROM node:22.14.0-slim
+# 使用官方 Node.js LTS 版本作为基础镜像，指定 amd64 架构
+FROM --platform=linux/amd64 node:22.14.0-slim
 
 # 设置工作目录
 WORKDIR /app
 
-# 复制 package.json 和 package-lock.json
+# 安装必要的依赖
+RUN apt-get update && apt-get install -y \
+    libc6 \
+    libstdc++6 \
+    && rm -rf /var/lib/apt/lists/*
+
+# 复制 package.json 和 package-lock.json（如果存在）
 COPY package*.json ./
 
-# 清理缓存并安装生产依赖
-RUN npm cache clean --force \
-  && npm install --only=production \
-  && npm run build \
-  || (echo "npm install failed, trying npm ci"; npm ci --only=production)
+# 安装项目依赖
+RUN npm install --production
 
-# 复制应用的源代码
+# 复制 Next.js 项目文件
 COPY . .
 
-# 设置默认的命令来运行前端
+# 构建 Next.js 应用
+RUN npm run build
+
+# 设置容器端口
+EXPOSE 3000
+
+# 启动命令
 CMD ["npm", "start"]
