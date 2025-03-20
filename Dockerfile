@@ -1,5 +1,5 @@
 # 使用 Node.js 22.14 完整版
-FROM node:22.14
+FROM arm64v8/node:22-bullseye
 
 # 设置工作目录
 WORKDIR /usr/app
