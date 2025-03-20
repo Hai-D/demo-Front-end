@@ -1,4 +1,4 @@
-# 选择合适的基础镜像
+# 使用一个稳定的基础镜像
 FROM node:22.14.0-slim
 
 # 设置工作目录
@@ -7,14 +7,14 @@ WORKDIR /app
 # 复制 package.json 和 package-lock.json
 COPY package*.json ./
 
-# 安装生产环境依赖
-RUN npm install --only=production || npm ci --only=production
+# 清理缓存并安装生产依赖
+RUN npm cache clean --force \
+  && npm install --only=production \
+  && npm run build \
+  || (echo "npm install failed, trying npm ci"; npm ci --only=production)
 
-# 复制代码
+# 复制应用的源代码
 COPY . .
 
-# 构建前端
-RUN npm run build
-
-# 设置运行命令
+# 设置默认的命令来运行前端
 CMD ["npm", "start"]
