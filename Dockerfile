@@ -1,14 +1,14 @@
-# 使用官方 Node.js LTS 版本作为基础镜像，指定 amd64 架构
-FROM --platform=linux/amd64 node:22.14.0-slim
+# 使用基于 CentOS 的 Node.js 镜像，指定 amd64 架构
+FROM --platform=linux/amd64 node:20
 
 # 设置工作目录
 WORKDIR /app
 
 # 安装必要的依赖
-RUN apt-get update && apt-get install -y \
-    libc6 \
-    libstdc++6 \
-    && rm -rf /var/lib/apt/lists/*
+RUN yum update -y && yum install -y \
+    glibc \
+    libstdc++ \
+    && yum clean all
 
 # 复制 package.json 和 package-lock.json（如果存在）
 COPY package*.json ./
