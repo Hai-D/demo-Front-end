@@ -1,5 +1,5 @@
-# 使用官方 Node.js 22.14.0 作为基础镜像
-FROM node:22.14.0-alpine
+# 选择合适的基础镜像
+FROM node:22.14.0-slim
 
 # 设置工作目录
 WORKDIR /app
@@ -7,14 +7,14 @@ WORKDIR /app
 # 复制 package.json 和 package-lock.json
 COPY package*.json ./
 
-# 安装依赖
-RUN npm ci --only=production
+# 安装生产环境依赖
+RUN npm install --only=production || npm ci --only=production
 
-# 复制项目文件
+# 复制代码
 COPY . .
 
-# 构建前端项目（如果有）
+# 构建前端
 RUN npm run build
 
-# 运行应用
+# 设置运行命令
 CMD ["npm", "start"]
