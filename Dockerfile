@@ -1,5 +1,5 @@
 # 1. 使用 Node.js 作为基础镜像
-FROM node:18-alpine AS builder
+FROM node:22.14 AS builder
 
 # 2. 设置工作目录
 WORKDIR /app
@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # 7. 生产环境运行容器
-FROM node:18-alpine AS runner
+FROM node:22.14 AS runner
 
 # 8. 设置工作目录
 WORKDIR /app
