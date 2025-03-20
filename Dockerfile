@@ -1,5 +1,5 @@
 # 使用 AMD64 的 Node.js 22.14 基础镜像
-FROM amd64/node:22.14 AS builder
+FROM node:22.14.0-alpine AS builder
 
 # 设置工作目录
 WORKDIR /app
