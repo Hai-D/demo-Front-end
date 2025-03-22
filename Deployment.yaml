@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: fhd996007/fornetapp:v1
+          image: fhd996007/app0320:v1
           env:
             - name: NEXT_PUBLIC_BACKEND_URL
               value: "http://backend-service:8080"
