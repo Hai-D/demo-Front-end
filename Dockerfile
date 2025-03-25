@@ -49,8 +49,8 @@ RUN npm install
 COPY . .
 
 # 定义构建参数并设置环境变量
-ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+ENV NEXT_PUBLIC_API_URL=http://backend-service:8080
 
 # 构建 Next.js 应用
 RUN npm run build
