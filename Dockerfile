@@ -1,4 +1,4 @@
-FROM node:16-alpine  # Use the version that works
+FROM node:22.14.0  # Use the version that works
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
