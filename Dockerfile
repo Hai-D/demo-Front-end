@@ -8,7 +8,7 @@ RUN npm install
 
 # 复制项目代码并进行构建
 COPY . .
-ENV NEXT_PUBLIC_API_URL=/api  # 配置前端访问的后端 API
+ENV NEXT_PUBLIC_API_URL=/api  
 RUN npm run build
 
 # 使用 Nginx 作为前端服务器
