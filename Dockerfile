@@ -13,7 +13,7 @@ COPY . .
 ENV NEXT_PUBLIC_API_URL=/
 
 # 构建 Next.js 应用并导出静态文件（确保在 next.config.js 中支持 export）
-RUN npm run build && npm run export
+RUN npm run build && npm run start
 
 # Stage 2: 使用 Nginx 部署
 FROM nginx:stable-alpine
