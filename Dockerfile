@@ -1,23 +1,39 @@
-# 使用 Node 官方的轻量版镜像
-FROM node:22-alpine
+# Stage 1: 使用 Node.js 镜像进行依赖安装和构建
+FROM node:18-alpine AS builder
 
 # 设置工作目录
 WORKDIR /app
 
-# 复制 package.json 和 package-lock.json 文件
-COPY package*.json ./
+# 优先复制包管理文件
+COPY package.json yarn.lock* package-lock.json* ./
 
-# 安装依赖
-RUN npm install
+# 安装依赖（自动识别包管理器）
+RUN npm install --legacy-peer-deps
 
-# 复制全部源代码
+# 复制所有源代码
 COPY . .
 
-# 执行构建命令
+# 构建应用（Next.js 15 需要严格模式处理）
 RUN npm run build
 
-# 暴露端口（Next.js 默认3000端口）
-EXPOSE 3000
+# Stage 2: 使用 Nginx 镜像部署
+FROM nginx:1.23-alpine
 
-# 启动应用
-CMD ["npm", "start"]
+# 删除默认配置
+RUN rm /etc/nginx/conf.d/default.conf
+
+# 复制自定义 Nginx 配置
+COPY nginx.conf /etc/nginx/conf.d
+
+# 从 builder 阶段复制构建产物
+COPY --from=builder /app/.next/static /usr/share/nginx/html/_next/static
+COPY --from=builder /app/public /usr/share/nginx/html/
+
+# 设置权限（Next.js 需要特定权限）
+RUN chmod -R 755 /usr/share/nginx/html
+
+# 暴露端口
+EXPOSE 80
+
+# 启动 Nginx
+CMD ["nginx", "-g", "daemon off;"]
