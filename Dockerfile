@@ -1,39 +1,45 @@
-# Stage 1: 使用 Node.js 镜像进行依赖安装和构建
+# Stage 1: Build
 FROM node:18-alpine AS builder
-
-# 设置工作目录
 WORKDIR /app
 
-# 优先复制包管理文件
-COPY package.json yarn.lock* package-lock.json* ./
+# 优先复制包管理文件以提高缓存效率
+COPY package*.json ./
 
-# 安装依赖（自动识别包管理器）
-RUN npm install --legacy-peer-deps
+# 安装依赖（兼容 npm/yarn）
+RUN npm install --legacy-peer-deps --unsafe-perm
 
-# 复制所有源代码
+# 复制源代码
 COPY . .
 
-# 构建应用（Next.js 15 需要严格模式处理）
+# 构建应用
 RUN npm run build
 
-# Stage 2: 使用 Nginx 镜像部署
+# Stage 2: Runtime
 FROM nginx:1.23-alpine
 
-# 删除默认配置
-RUN rm /etc/nginx/conf.d/default.conf
+# 解决警告 1: 处理入口点配置
+# 保留默认配置目录结构，仅覆盖必要配置
+RUN rm -f /etc/nginx/conf.d/default.conf && \
+    mkdir -p /etc/nginx/conf.d/custom
 
-# 复制自定义 Nginx 配置
-COPY nginx.conf /etc/nginx/conf.d
+# 复制自定义配置到正确位置
+COPY nginx.conf /etc/nginx/conf.d/custom/app.conf
 
-# 从 builder 阶段复制构建产物
-COPY --from=builder /app/.next/static /usr/share/nginx/html/_next/static
-COPY --from=builder /app/public /usr/share/nginx/html/
+# 解决警告 2: 权限设置
+# 设置符合 OpenShift 随机用户的安全权限
+RUN chmod -R g+rwX,o= \
+    /var/cache/nginx \
+    /var/run \
+    /etc/nginx/conf.d && \
+    chown -R nginx:root /usr/share/nginx/html
 
-# 设置权限（Next.js 需要特定权限）
-RUN chmod -R 755 /usr/share/nginx/html
+# 从构建阶段复制内容
+COPY --from=builder --chown=nginx:root /app/.next/static /usr/share/nginx/html/_next/static
+COPY --from=builder --chown=nginx:root /app/public /usr/share/nginx/html/
 
-# 暴露端口
-EXPOSE 80
+# 解决错误: 使用非 root 用户
+USER nginx
 
-# 启动 Nginx
+EXPOSE 8080
+
 CMD ["nginx", "-g", "daemon off;"]
