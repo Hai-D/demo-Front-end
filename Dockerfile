@@ -3,8 +3,8 @@ FROM node:21-alpine AS builder
 WORKDIR /app
 
 # 安装依赖（包含构建时环境变量）
-ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=http://route-yeasty-nightingale-hardenfeng-dev.apps.rm1.0a51.p1.openshiftapps.com
+# ARG NEXT_PUBLIC_API_URL
+# ENV NEXT_PUBLIC_API_URL=http://route-yeasty-nightingale-hardenfeng-dev.apps.rm1.0a51.p1.openshiftapps.com
 
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
