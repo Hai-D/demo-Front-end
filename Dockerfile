@@ -1,22 +1,31 @@
+# 构建阶段
 FROM node:21-alpine AS builder
 WORKDIR /app
-COPY package.json package-lock.json ./  
-RUN npm install --legacy-peer-deps             
+
+# 安装依赖（包含构建时环境变量）
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 COPY . .
-RUN npm run build 
+RUN npm run build
 
-# 生产镜像
-FROM nginx:1.23-alpine
-RUN rm /etc/nginx/conf.d/default.conf
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=builder /app/.next/static /usr/share/nginx/html/_next/static
-COPY --from=builder /app/public /usr/share/nginx/html/static
-RUN chmod -R g+rwX,o= \
-    /var/cache/nginx \
-    /var/run \
-    /etc/nginx/conf.d 
-RUN chmod -R 755 /usr/share/nginx/html
-USER nginx
-EXPOSE 8080
+# 生产阶段
+FROM node:21-alpine
+WORKDIR /app
 
+# 安全配置
+RUN adduser -D -u 1001 nextjs
+USER nextjs
 
+# 复制构建产物（包含环境变量）
+COPY --from=builder --chown=nextjs:nextjs /app/.next ./.next
+COPY --from=builder --chown=nextjs:nextjs /app/public ./public
+COPY --from=builder --chown=nextjs:nextjs /app/package*.json ./
+
+# 运行时配置（可覆盖构建时的默认值）
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://route-yeasty-nightingale-hardenfeng-dev.apps.rm1.0a51.p1.openshiftapps.com}
+
+EXPOSE 3000
+CMD ["npm", "start"]

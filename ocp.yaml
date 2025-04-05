@@ -15,9 +15,9 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: fhd996007/1351:v1
+        image: fhd996007/11419:v1
         ports:
-        - containerPort: 80
+        - containerPort: 8080
         env:
         - name: NEXT_PUBLIC_API_URL
           value: "http://backend-service:8080"
@@ -32,5 +32,5 @@ spec:
   ports:
   - protocol: TCP
     port: 8080
-    targetPort: 80
+    targetPort: 8080
   type: ClusterIP
