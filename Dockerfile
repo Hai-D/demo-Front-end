@@ -17,3 +17,5 @@ RUN chmod -R 777 \
     /etc/nginx/conf.d && \
     chown -R nginx:root /usr/share/nginx/html
 EXPOSE 80
+USER root
+CMD ["nginx", "-g", "daemon off;"]
