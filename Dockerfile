@@ -16,5 +16,4 @@ RUN chmod -R 777 \
     /var/run \
     /etc/nginx/conf.d && \
     chown -R nginx:root /usr/share/nginx/html
-USER nginx
 EXPOSE 80

@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: your-registry/nextjs-app:latest
+        image: fhd996007/1351:v1
         ports:
         - containerPort: 80
         env:
