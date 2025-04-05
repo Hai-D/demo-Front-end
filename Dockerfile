@@ -3,9 +3,6 @@ FROM node:21-alpine AS builder
 WORKDIR /app
 
 # 安装依赖（包含构建时环境变量）
-# ARG NEXT_PUBLIC_API_URL
-# ENV NEXT_PUBLIC_API_URL=http://route-yeasty-nightingale-hardenfeng-dev.apps.rm1.0a51.p1.openshiftapps.com
-
 COPY package.json package-lock.json ./
 RUN npm install --legacy-peer-deps
 COPY . .
@@ -23,6 +20,12 @@ USER nextjs
 COPY --from=builder --chown=nextjs:nextjs /app/.next ./.next
 COPY --from=builder --chown=nextjs:nextjs /app/public ./public
 COPY --from=builder --chown=nextjs:nextjs /app/package*.json ./
+
+# 设置环境变量
+ENV NEXT_PUBLIC_API_URL=http://route-yeasty-nightingale-hardenfeng-dev.apps.rm1.0a51.p1.openshiftapps.com
+
+# 安装生产依赖（必须安装 next）
+RUN npm install --production --legacy-peer-deps
 
 EXPOSE 3000
 CMD ["npm", "start"]

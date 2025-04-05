@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: nextjs-frontend
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: nextjs-frontend
@@ -15,12 +15,9 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: fhd996007/11419:v1
+        image: fhd996007/nonnginx:v1
         ports:
-        - containerPort: 8080
-        env:
-        - name: NEXT_PUBLIC_API_URL
-          value: "http://backend-service:8080"
+        - containerPort: 3000
 ---
 apiVersion: v1
 kind: Service
@@ -32,5 +29,5 @@ spec:
   ports:
   - protocol: TCP
     port: 8080
-    targetPort: 8080
+    targetPort: 3000
   type: ClusterIP
