@@ -7,7 +7,7 @@ WORKDIR /app
 # ENV NEXT_PUBLIC_API_URL=http://route-yeasty-nightingale-hardenfeng-dev.apps.rm1.0a51.p1.openshiftapps.com
 
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+RUN npm install --legacy-peer-deps
 COPY . .
 RUN npm run build
 
