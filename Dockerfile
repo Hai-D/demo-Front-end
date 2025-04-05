@@ -4,7 +4,7 @@ WORKDIR /app
 
 # 安装依赖（包含构建时环境变量）
 ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=http://route-yeasty-nightingale-hardenfeng-dev.apps.rm1.0a51.p1.openshiftapps.com
 
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
@@ -23,9 +23,6 @@ USER nextjs
 COPY --from=builder --chown=nextjs:nextjs /app/.next ./.next
 COPY --from=builder --chown=nextjs:nextjs /app/public ./public
 COPY --from=builder --chown=nextjs:nextjs /app/package*.json ./
-
-# 运行时配置（可覆盖构建时的默认值）
-ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://route-yeasty-nightingale-hardenfeng-dev.apps.rm1.0a51.p1.openshiftapps.com}
 
 EXPOSE 3000
 CMD ["npm", "start"]
