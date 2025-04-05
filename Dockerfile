@@ -11,11 +11,12 @@ RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/.next/static /usr/share/nginx/html/_next/static
 COPY --from=builder /app/public /usr/share/nginx/html/static
-RUN chmod -R 777 \
+RUN chmod -R g+rwX,o= \
     /var/cache/nginx \
     /var/run \
-    /etc/nginx/conf.d && \
-    chown -R nginx:root /usr/share/nginx/html
+    /etc/nginx/conf.d 
+RUN chmod -R 755 /usr/share/nginx/html
+
 EXPOSE 80
-USER root
-CMD ["nginx", "-g", "daemon off;"]
+
+
