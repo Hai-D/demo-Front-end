@@ -1,30 +1,25 @@
-# 构建阶段
-FROM node:21-alpine AS builder
+FROM node:21-alpine
+
 WORKDIR /app
 
-# 安装依赖（包含构建时环境变量）
+# 安装依赖
 COPY package.json package-lock.json ./
 RUN npm install --legacy-peer-deps
+
+# 复制源代码
 COPY . .
+
+# 构建应用
 RUN npm run build
 
-# 生产阶段
-FROM node:21-alpine
-WORKDIR /app
-
-# 安全配置
+# 创建并切换到非 root 用户
 RUN adduser -D -u 1001 nextjs
 USER nextjs
-
-# 复制构建产物（包含环境变量）
-COPY --from=builder --chown=nextjs:nextjs /app/.next ./.next
-COPY --from=builder --chown=nextjs:nextjs /app/public ./public
-COPY --from=builder --chown=nextjs:nextjs /app/package*.json ./
 
 # 设置环境变量
 ENV NEXT_PUBLIC_API_URL=http://route-yeasty-nightingale-hardenfeng-dev.apps.rm1.0a51.p1.openshiftapps.com
 
-# 安装生产依赖（必须安装 next）
+# 安装生产依赖
 RUN npm install --legacy-peer-deps
 
 EXPOSE 3000
