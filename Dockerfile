@@ -25,7 +25,7 @@ COPY --from=builder --chown=nextjs:nextjs /app/package*.json ./
 ENV NEXT_PUBLIC_API_URL=http://route-yeasty-nightingale-hardenfeng-dev.apps.rm1.0a51.p1.openshiftapps.com
 
 # 安装生产依赖（必须安装 next）
-RUN npm install --production --legacy-peer-deps
+RUN npm install --legacy-peer-deps
 
 EXPOSE 3000
 CMD ["npm", "start"]
