@@ -16,7 +16,7 @@ RUN chmod -R g+rwX,o= \
     /var/run \
     /etc/nginx/conf.d 
 RUN chmod -R 755 /usr/share/nginx/html
-
-EXPOSE 80
+USER nginx
+EXPOSE 8080
 
 
